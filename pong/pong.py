@@ -19,31 +19,38 @@ class Window(pyglet.window.Window):
         self.center_image(self.image)
         self.music = pyglet.resource.media('rebound.ogg')
         self.music.play()
+
         self.ball = pyglet.sprite.Sprite(img=self.image, x=500, y=400)
         self.ball.scale = 0.2
         self.ball.dx = 10.0
+
         self.racket_image = pyglet.resource.image('racket.png')
-        self.racket_left = pyglet.sprite.Sprite(img=self.racket_image, x=50, y=50)
+        self.racket_left = pyglet.sprite.Sprite(img=self.racket_image, x=20, y=50)
         self.racket_left.scale = 0.5
-        self.racket_right = pyglet.sprite.Sprite(img=self.racket_image, x=self.width-50, y=50)
+
+        self.racket_right = pyglet.sprite.Sprite(img=self.racket_image, x=self.width-20-self.racket_left.width, y=50)
         self.racket_right.scale = 0.5
+
         self.fps_display = pyglet.clock.ClockDisplay()
+        self.racket_left_move = 0
+        self.racket_right_move = 0
         pyglet.clock.schedule_interval(self.update, 1/60.0)
 
     def on_key_press(self, symbol, modifiers):
         if symbol == key.W:
-            pyglet.clock.schedule_interval(self.move, 5, self.racket_left)
+            self.racket_left_move = 4
         elif symbol == key.S:
-            self.move(-10, self.racket_left)
+            self.racket_left_move = -4
         elif symbol == key.UP:
-            self.move(10, self.racket_right)
+            self.racket_right_move = 4
         elif symbol == key.DOWN:
-            self.move(-10, self.racket_right)
+            self.racket_right_move = -4
 
-
-    def on_mouse_press(self, x, y, button, modifiers):
-        if button == mouse.LEFT:
-            print('The left mouse button was pressed.')
+    def on_key_release(self, symbol, modifiers):
+        if symbol == key.W or symbol == key.S:
+            self.racket_left_move = 0
+        if symbol == key.UP or symbol == key.DOWN:
+            self.racket_right_move = 0
 
 
     def on_draw(self):
@@ -56,11 +63,23 @@ class Window(pyglet.window.Window):
 
     def center_image(self, image):
         """Sets an image's anchor point to its center"""
-        image.anchor_x = image.width // 2
-        image.anchor_y = image.height // 2
+        image.anchor_x = image.width / 2
+        image.anchor_y = image.height / 2
 
     def update(self, dt):
         self.ball.x += self.ball.dx * dt
+
+        self.racket_left.y += self.racket_left_move
+        if self.racket_left.y > self.height - self.racket_left.height:
+            self.racket_left.y = self.height - self.racket_left.height
+        if self.racket_left.y < 0:
+            self.racket_left.y = 0
+
+        self.racket_right.y += self.racket_right_move
+        if self.racket_right.y > self.height - self.racket_right.height:
+            self.racket_right.y = self.height - self.racket_right.height
+        if self.racket_right.y < 0:
+            self.racket_right.y = 0
 
     def move(self, dt, sprite):
         sprite.y += dt

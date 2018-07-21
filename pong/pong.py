@@ -62,27 +62,24 @@ class Window(pyglet.window.Window):
         self.fps_display.draw()
 
     def center_image(self, image):
-        """Sets an image's anchor point to its center"""
+        """
+        Sets an image's anchor point to its center
+        """
         image.anchor_x = image.width / 2
         image.anchor_y = image.height / 2
 
     def update(self, dt):
         self.ball.x += self.ball.dx * dt
 
-        self.racket_left.y += self.racket_left_move
-        if self.racket_left.y > self.height - self.racket_left.height:
-            self.racket_left.y = self.height - self.racket_left.height
-        if self.racket_left.y < 0:
-            self.racket_left.y = 0
-
-        self.racket_right.y += self.racket_right_move
-        if self.racket_right.y > self.height - self.racket_right.height:
-            self.racket_right.y = self.height - self.racket_right.height
-        if self.racket_right.y < 0:
-            self.racket_right.y = 0
+        self.move(self.racket_left_move, self.racket_left)
+        self.move(self.racket_right_move, self.racket_right)
 
     def move(self, dt, sprite):
         sprite.y += dt
+        if sprite.y > self.height - sprite.height:
+            sprite.y = self.height - sprite.height
+        if sprite.y < 0:
+            sprite.y = 0
 
 if __name__ == '__main__':
     window = Window()

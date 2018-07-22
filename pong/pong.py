@@ -85,15 +85,18 @@ class Window(pyglet.window.Window):
             self.ball.dy = 0
         
         if self.ball.x <= self.racket_left.x + self.racket_left.width and   \
-            self.ball.y + self.ball.height / 2 <= self.racket_left.y + self.racket_left.height and  \
-            self.ball.y + self.ball.height / 2 >= self.racket_left.y:
+                self.ball.y + self.ball.height / 2 <= self.racket_left.y + self.racket_left.height and  \
+                self.ball.y + self.ball.height / 2 >= self.racket_left.y and \
+                self.ball.x > self.racket_left.x + self.racket_left.width + self.ball.dx / 60 * 2:
+
             self.music.play()
             self.ball.x = self.racket_left.x + self.racket_left.width
             self.ball.dx = -self.ball.dx
         
         if self.ball.x + self.ball.width >= self.racket_right.x and   \
-            self.ball.y + self.ball.height / 2 <= self.racket_right.y + self.racket_right.height and  \
-            self.ball.y + self.ball.height / 2 >= self.racket_right.y:
+                self.ball.y + self.ball.height / 2 <= self.racket_right.y + self.racket_right.height and  \
+                self.ball.y + self.ball.height / 2 >= self.racket_right.y and \
+                self.ball.x + self.ball.width < self.racket_right.x + self.ball.dx / 60 * 2:
             self.music.play()
             self.ball.x = self.racket_right.x - self.ball.width
             self.ball.dx = -self.ball.dx

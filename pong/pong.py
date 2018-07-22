@@ -16,13 +16,12 @@ class Window(pyglet.window.Window):
         pyglet.resource.path = ['assets']
         pyglet.resource.reindex()
         self.image = pyglet.resource.image('ball.png')
-        self.center_image(self.image)
-        self.music = pyglet.resource.media('rebound.ogg')
-        self.music.play()
+        self.music = pyglet.resource.media('rebound.ogg', streaming=False)
 
-        self.ball = pyglet.sprite.Sprite(img=self.image, x=500, y=400)
-        self.ball.scale = 0.2
-        self.ball.dx = 10.0
+        self.ball = pyglet.sprite.Sprite(img=self.image, x=0, y=0)
+        self.ball.scale = 0.3
+        self.ball.dx = 150.0
+        self.ball.dy = 150.0
 
         self.racket_image = pyglet.resource.image('racket.png')
         self.racket_left = pyglet.sprite.Sprite(img=self.racket_image, x=20, y=50)
@@ -61,18 +60,43 @@ class Window(pyglet.window.Window):
         self.racket_right.draw()
         self.fps_display.draw()
 
-    def center_image(self, image):
-        """
-        Sets an image's anchor point to its center
-        """
-        image.anchor_x = image.width / 2
-        image.anchor_y = image.height / 2
-
     def update(self, dt):
         self.ball.x += self.ball.dx * dt
-
+        self.ball.y += self.ball.dy * dt
+        
         self.move(self.racket_left_move, self.racket_left)
         self.move(self.racket_right_move, self.racket_right)
+
+        self.collise()
+    
+    def collise(self):
+        if self.ball.y > self.height - self.ball.height:
+            self.ball.y = self.height - self.ball.height
+            self.ball.dy = -self.ball.dy
+        if self.ball.y < 0:
+            self.ball.y = 0
+            self.ball.dy = -self.ball.dy
+        if self.ball.x < 0:
+            self.ball.x = 0
+            self.ball.x = 0
+            self.ball.dy = 0
+        if self.ball.x > self.width - self.ball.width:
+            self.ball.x = self.width - self.ball.width
+            self.ball.dy = 0
+        
+        if self.ball.x <= self.racket_left.x + self.racket_left.width and   \
+            self.ball.y + self.ball.height / 2 <= self.racket_left.y + self.racket_left.height and  \
+            self.ball.y + self.ball.height / 2 >= self.racket_left.y:
+            self.music.play()
+            self.ball.x = self.racket_left.x + self.racket_left.width
+            self.ball.dx = -self.ball.dx
+        
+        if self.ball.x + self.ball.width >= self.racket_right.x and   \
+            self.ball.y + self.ball.height / 2 <= self.racket_right.y + self.racket_right.height and  \
+            self.ball.y + self.ball.height / 2 >= self.racket_right.y:
+            self.music.play()
+            self.ball.x = self.racket_right.x - self.ball.width
+            self.ball.dx = -self.ball.dx
 
     def move(self, dt, sprite):
         sprite.y += dt

@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.1.0/dist/phaser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.min.js"></script>
 </head>
 
 <body>
@@ -32,8 +32,9 @@
         var game = new Phaser.Game(config);
 
         function preload() {
-            this.load.image('dude', 'assets/ball.png');
+            // this.load.image('dude', 'assets/ball.png');
             this.load.image('racket', 'assets/racket.png');
+            
         }
 
         function create() {
@@ -79,6 +80,11 @@
                 frameRate: 10,
                 repeat: -1
             });
+
+            block = this.add.graphics();
+            block.fillStyle(0xcdbfb4, 1.0);
+            block.fillRoundedRect(0, 0, 100, 100, 3)
+
         }
 
         function update() {}

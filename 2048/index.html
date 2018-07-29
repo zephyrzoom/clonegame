@@ -24,29 +24,50 @@
         var game = new Phaser.Game(config);
 
         function preload() {
-
+            // set color style
             background = this.add.graphics();
             background.fillStyle(0xbbada0, 1.0);
 
             grid = this.add.graphics();
             grid.fillStyle(0xeee4da, 0.35);
+            
+            // add 4 key
+            down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+            up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+            left = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+            right = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
 
-            block2 = this.add.graphics();
-            block2.fillStyle(0xeee4da, 1.0);
-
-            cursors = this.input.keyboard.createCursorKeys();
+            blocks = [
+                [null, null, null, null],
+                [null, null, null, null],
+                [null, null, null, null],
+                [null, null, null, null],
+            ];
+            texts = [
+                [null, null, null, null],
+                [null, null, null, null],
+                [null, null, null, null],
+                [null, null, null, null],
+            ]
         }
 
         function create() {
 
+            // background size
             background_width = 500;
             background_height = background_width;
 
+            // draw background
             background.fillRoundedRect(0, 0, background_width, background_height, 6);
+
+            // grid size
             grid_width = 15;
+
+            // block size
             block_width = (background_width - 5 * grid_width) / 4;
             block_heigth = (background_height - 5 * grid_width) / 4;
 
+            // draw default blocks
             for (let i = 0; i < 4; i++) {
                 for (let j = 0; j < 4; j++) {
                     grid.fillRoundedRect(grid_width + j * (block_width + grid_width),
@@ -56,60 +77,73 @@
                         3);
                 }
             }
-            //////////////////////////////////////////////////////
-            var Block = new Phaser.Class({
 
-                Extends: Phaser.GameObjects.Graphics,
+            // step length
+            step_length = grid_width + block_width;
 
-                initialize:
-
-                    function Block(scene) {
-                        Phaser.GameObjects.Graphics.call(this, scene, 0, 0, 'bullet');
-
-                        this.speed = Phaser.Math.GetSpeed(600, 1);
-                    },
-
-                fire: function (x, y) {
-                    this.setPosition(x, y);
-
-                    this.setActive(true);
-                    this.setVisible(true);
-                },
-
-                update: function (time, delta) {
-                    this.x += this.speed * delta;
-
-                    if (this.x > 820) {
-                        this.setActive(false);
-                        this.setVisible(false);
-                    }
-                }
-
+            blocks[0][0] = this.add.graphics();
+            blocks[0][0].fillStyle(0xeee4da, 1.0);
+            blocks[0][0].fillRoundedRect(grid_width, grid_width, block_width, block_heigth, 3);
+            texts[0][0] = this.add.text(grid_width + block_width / 2, grid_width + block_heigth / 2, '2', {
+                fontFamily: 'sans-serif',
+                color: '#776e65',
+                fontSize: 55,
+                fontStyle: 'bold',
+                padding: 0,
             });
+            texts[0][0].setDisplayOrigin(texts[0][0].width / 2, texts[0][0].height / 2);
 
-            blocks = this.add.group({
-                classType: Block,
-                maxSize: 30,
-                runChildUpdate: true
+            blocks[0][2] = this.add.graphics();
+            blocks[0][2].fillStyle(0xeee4da, 1.0);
+            blocks[0][2].fillRoundedRect(grid_width, grid_width + step_length * 2, block_width, block_heigth, 3);
+            texts[0][2] = this.add.text(grid_width + block_width / 2, grid_width + block_heigth / 2 + step_length * 2, '4', {
+                fontFamily: 'sans-serif',
+                color: '#776e65',
+                fontSize: 55,
+                fontStyle: 'bold',
+                padding: 0,
             });
-            ///////////////////////////////////////////////
-            block2.fillRoundedRect(grid_width, grid_width, block_width, block_heigth, 3);
-            down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
-            up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
-            left = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
-            right = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+            texts[0][2].setDisplayOrigin(texts[0][2].width / 2, texts[0][2].height / 2);
         }
 
         function update() {
             if (Phaser.Input.Keyboard.JustDown(down)) {
-                block = blocks.get();
-                if (block)
-                {
-                    block.fire(100, 100);
+                for (let i = 0; i < blocks.length; i++) {
+                    for (let j = blocks[i].length - 1; j >= 0; j--) {
+                        console.log('out:', i, j);
+                        console.log(j < blocks[i].length - 1 && blocks[i][j] != null);
+
+                        if (j < blocks[i].length - 1 && blocks[i][j] != null) {
+                            
+                            let moveTo = blocks[i].length - 1;
+                            for (let k = j+1; k < blocks[i].length; k++) {
+                                console.log('check moveto:' ,i, k);
+                                
+                                if (blocks[i][k]) {
+                                    console.log('move', i, j);
+                                    
+                                    moveTo = k - 1;
+                                    break;
+                                }
+                            }
+
+                            blocks[i][j].y += step_length * (moveTo - j);
+                            texts[i][j].y += step_length * (moveTo - j);
+                            blocks[i][moveTo] = blocks[i][j];
+                            blocks[i][j] = null;
+                            texts[i][moveTo] = texts[i][j];
+                            texts[i][j] = null;
+                        }
+                    }
+                    
                 }
             } else if (Phaser.Input.Keyboard.JustDown(right)) {
-                block2.x += 5;
-            } else if (cursors.up.isDown) {} else if (cursors.down.isDown) {}
+                
+            } else if (Phaser.Input.Keyboard.JustDown(up)) {
+                
+            } else if (Phaser.Input.Keyboard.JustDown(left)) {
+                
+            }
         }
     </script>
 
